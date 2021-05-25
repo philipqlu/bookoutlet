@@ -1,13 +1,14 @@
 import argparse
 from typing import List
 from urllib.parse import urlencode
+
 import cloudscraper
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz, process
 
 class Scraper:
-    def __init__(self, base_url: str, titles: List[str], fuzz_thresh: float = 0.92):
-        self.base_url = base_url
+    def __init__(self, titles: List[str], fuzz_thresh: int = 85):
+        self.base_url = 'https://bookoutlet.ca/Store/Search?'
         self.titles = titles
         self.scraper = cloudscraper.CloudScraper()
         self.fuzz_thresh = fuzz_thresh
@@ -40,22 +41,24 @@ class Scraper:
         else:
             choice = "N/A"
             found = False
+            ratio = 0
         print("'{}' was {}found".format(title, "" if found else "not "))
-        print("Closest match: {}".format(choice))
+        print("Closest match ({}%): {}".format(ratio, choice))
         return found
 
     def search_all_titles(self):
-        found = 0
+        found = []
         for t in self.titles:
             # Search and check if the title was found
             print("***")
             r = self.search(t)
             r_titles = self.parse_titles(r)
             if r_titles and self.find_title(t, r_titles):
-                found += 1
+                found.append(t)
             print("***")
 
-        print("{} titles found out of {}".format(found, len(self.titles)))
+        print("{} titles found out of {}".format(len(found), len(self.titles)))
+        return found
 
 if __name__ == "__main__":
     # read list of titles from txt file
@@ -66,6 +69,10 @@ if __name__ == "__main__":
         titles = [l.strip() for l in f]
 
     # perform searches
-    scraper = Scraper('https://bookoutlet.ca/Store/Search?', titles)
-    scraper.search_all_titles()
+    scraper = Scraper(titles)
+    found = scraper.search_all_titles()
+
+    # write found to disk
+    with open('found-' + args.file, 'w') as f:
+        f.write('\n'.join(found))
 
