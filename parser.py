@@ -19,7 +19,10 @@ def parse(url: str, source: str) -> str:
 
 
 def collison(soup, include={'teal', 'green'}):
-    # We can also filter books by the colour coding 
+    """
+    We can also filter books by the colour coding.
+    Ignore the blue-coded books by default.
+    """
     categories = {
             'blue': 'a',
             'teal': 'i', # substantially above average
@@ -37,6 +40,9 @@ def collison(soup, include={'teal', 'green'}):
     return set(titles)
 
 def goodreads(soup):
+    """
+    Read the book titles from the image alt text.
+    """
     titles = list(
         map(
             lambda x: x.img.get('alt'),

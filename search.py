@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz, process
 
 class Scraper:
-    def __init__(self, titles: List[str], fuzz_thresh: int = 85):
+    def __init__(self, titles: List[str], fuzz_thresh: int = 90):
         self.base_url = 'https://bookoutlet.ca/Store/Search?'
         self.titles = titles
         self.scraper = cloudscraper.CloudScraper()
@@ -22,11 +22,6 @@ class Scraper:
 
     def search(self, query: str) -> str:
         print("Searching for: {}".format(query))
-        words = query.split()
-        # Long search queries don't work well
-        if len(words) > 8:
-            query = ' '.join(words[:8])
-            print("Truncating query to: {}".format(query))
         encoded_query = urlencode({'qf': 'All', 'q': query})
         url = self.base_url + encoded_query
         return self.scraper.get(url).text
@@ -36,7 +31,7 @@ class Scraper:
         Fuzzy string match the title against a list of titles.
         """
         if titles:
-            choice, ratio = process.extractOne(title.lower(), list(map(lambda x: x.lower(), titles)), scorer=fuzz.ratio)
+            choice, ratio = process.extractOne(title.lower(), list(map(lambda x: x.lower(), titles)), scorer=fuzz.partial_ratio)
             found = ratio >= self.fuzz_thresh
         else:
             choice = "N/A"
