@@ -36,5 +36,5 @@ The program will parse the book titles from the input URL and source, search for
 
 Example:
 ```
-python src/bookoutlet/main.py --url https://www.goodreads.com/genres/memoir --source goodreads --store bookoutlet --file gr_memoir.txt
+python bookoutlet/main.py --url https://www.goodreads.com/genres/memoir --source goodreads --store bookoutlet --file gr_memoir.txt
 ```
